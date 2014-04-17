@@ -539,7 +539,7 @@ If editing page is newly created, return hash of empty page."
   "Get last modified time as readable format.
 If editing page is newly created, return buffer creation time."
   (let ((modified (cdr (assoc "lastModified" trac-wiki-page-info))))
-    (trac-wiki-convert-to-readable-time-string modified)))
+    (xml-rpc-datetime-to-string modified)))
 
 ;; workaround for old emacs/url
 (when (eq emacs-major-version 21)
@@ -1826,7 +1826,7 @@ if too many version exists."
 	    (setq rest (1- rest))
 	    (insert (format "\nversion:  %s" (cdr (assoc "version" info))))
 	    (insert "\nmodified: "
-		    (trac-wiki-convert-to-readable-time-string
+		    (xml-rpc-datetime-to-string
 		     (cdr (assoc "lastModified" info))))
 	    (insert "\nauthor:   " (cdr (assoc "author" info)))
 	    (if (assoc "comment" info)
@@ -1925,27 +1925,6 @@ if too many version exists."
 	(and win (window-live-p win)
 	     (delete-window win)))
     (error (bury-buffer buf))))
-
-(defun trac-wiki-convert-to-readable-time-string (str)
-  "Parse STR as ISO format time and return encoded time value."
-  (if (not (string-match (concat "\\`"
-				 "\\([0-9][0-9][0-9][0-9]\\)"
-				 "\\([0-9][0-9]\\)"
-				 "\\([0-9][0-9]\\)"
-				 "T"
-				 "\\([0-9][0-9]?\\)"
-				 ":"
-				 "\\([0-9][0-9]?\\)"
-				 ":"
-				 "\\([0-9][0-9]?\\)"
-				 "\\([-+][0-9][0-9][0-9][0-9]\\)?"
-				 "\\'")
-			 str))
-      (error "Invalid time format: %s" str)
-    (apply 'format "%s-%s-%s %s:%s:%s%s"
-	   (append (mapcar (lambda (n)
-			     (or (match-string n str) ""))
-			   '(1 2 3 4 5 6 7))))))
 
 
 (defun trac-wiki-collect-macro-names ()
